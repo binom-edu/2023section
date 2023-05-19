@@ -1,4 +1,14 @@
 # Проект Секция
+## Занятие 19 (19 мая)
++ двоичный поиск
++ вещественный двоичный поиск
+### Домашка
++ задачи к п.64 сортировка
++ https://informatics.msk.ru/mod/statements/view.php?id=11249#1
+### Доп. материалы
++ https://www.youtube.com/watch?v=LoLr6MoQRv4
++ https://www.youtube.com/watch?v=yjjnhSSaqlY
+
 ## Занятие 18 (16 мая)
 + функция sorted()
 + метод sort()
