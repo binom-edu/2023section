@@ -1,0 +1,6 @@
+fin = open('/home/ak/prog/2023-06-27/hello.txt', 'r')
+s = fin.readline().strip()
+print(s)
+s = fin.readline()
+print(s)
+fin.close()
