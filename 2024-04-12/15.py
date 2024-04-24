@@ -1,4 +1,4 @@
-import random
+import random, heapq
 
 def print_board(board):
     for i in range(n):
@@ -39,31 +39,59 @@ def get_neighbours(board):
             ans.append(bc)
     return ans
 
-n = 3
+def heu(v):
+    ans = 0
+    for i in range(len(v)):
+        if i != v[i]:
+            ans += 1
+    return ans
+
+n = 4
 board = [i for i in range(n ** 2)]
 fin = board.copy()
 
-# for i in range(4):
-#     move(board, random.choice('urdl'))
-random.shuffle(board)
+for i in range(100):
+    move(board, random.choice('urdl'))
+# random.shuffle(board)
 
-print_board(board)
+# print_board(board)
 
 d = dict()
 q = []
-q.append(board)
+heapq.heapify(q)
+
+# q.append(board)
+heapq.heappush(q, [0 + heu(board), board])
 d[get_h(board)] = 0
 
 while q:
-    v = q.pop(0)
+    # v = q.pop(0)
+    v = heapq.heappop(q)[1]
     h_v = get_h(v)
     if v == fin:
-        print(d[h_v])
+        cnt = d[h_v]
         break
     neighbours = get_neighbours(v)
     for u in neighbours:
         h = get_h(u)
         if not h in d or d[h] > d[h_v] + 1:
             d[h] = d[h_v] + 1
-            q.append(u)
-    
+            heapq.heappush(q, [d[h] + heu(u), u])
+            # q.append(u)
+
+# Восстановление ответа    
+ans = [fin]
+v = fin
+while v != board:
+    h_v = get_h(v)
+    for u in get_neighbours(v):
+        if get_h(u) in d and d[get_h(u)] == d[h_v] - 1:
+            v = u
+            ans.append(u)
+            break
+
+ans.reverse()
+for v in ans:
+    print_board(v)
+    print('---')
+print(cnt)
