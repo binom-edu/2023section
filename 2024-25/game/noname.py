@@ -9,6 +9,22 @@ class Pers(pygame.sprite.Sprite):
         self.rect.center = (WIDTH // 2, HEIGHT // 2)
         all_sprites.add(self)
 
+    def update(self):
+        keystate = pygame.key.get_pressed()
+        if keystate[pygame.K_UP]:
+            self.rect.y -= 5
+            if self.rect.top <= 0:
+                self.rect.top += 20
+        if keystate[pygame.K_DOWN]:
+            self.rect.y += 5
+        if keystate[pygame.K_RIGHT]:
+            self.rect.x += 5
+        if keystate[pygame.K_LEFT]:
+            self.rect.x -= 5
+        # self.rect.y += 5
+        # if self.rect.top >= HEIGHT:
+        #     self.rect.bottom = 0
+
 
 FPS = 30
 WIDTH = 400
@@ -34,6 +50,7 @@ while gameOn:
     # обновление
     all_sprites.update()
     # рендеринг
+    screen.fill((0, 0, 0))
     all_sprites.draw(screen)
     
     pygame.display.flip()
