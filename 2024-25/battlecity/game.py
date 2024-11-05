@@ -65,6 +65,22 @@ class Player(Tank):
                 self.x = min(self.x + 1, cfg['WIDTH'] - 2)
         Tank.update(self)
 
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, coords: tuple, type: str):
+        pygame.sprite.Sprite.__init__(self)
+        if type == 'x':
+            self.image = pygame.surface.Surface((cfg['TILESIZE'], cfg['TILESIZE']))
+            self.image.fill((200, 40, 40))
+            tiles_fg.add(self)
+        elif type == 'b':
+            self.image = pygame.surface.Surface((cfg['TILESIZE'], cfg['TILESIZE']))
+            self.image.fill((200, 200, 200))
+            tiles_fg.add(self)
+        self.rect = self.image.get_rect()
+        x, y = coords
+        self.rect.topleft = (x * cfg['TILESIZE'], y * cfg['TILESIZE'])
+
+
 
 def readcfg():
     '''Чтение настроек'''
@@ -75,6 +91,23 @@ def readcfg():
             ans[key] = int(value)
     return ans
 
+def loadlevel(n):
+    '''Загружаем уровень по номеру'''
+    tiles_bg.empty()
+    tiles_fg.empty()
+    lvl_dir = os.path.join(os.path.dirname(__file__), 'levels')
+    filename = os.path.join(lvl_dir, str(n) + '.lvl')
+    with open(filename) as fin:
+        try:
+            for y in range(cfg['HEIGHT']):
+                line = fin.readline()
+                for x in range(cfg['WIDTH']):
+                    if line[x] != ' ':
+                        tile = Tile((x, y), line[x])
+        except:
+            print('Ошибка чтения уровня')
+            pygame.quit()
+
 cfg = readcfg()
 img_dir = os.path.join(os.path.dirname(__file__), 'img')
 
@@ -82,9 +115,14 @@ pygame.init()
 screen = pygame.display.set_mode((cfg['WIDTH'] * cfg['TILESIZE'], cfg['HEIGHT'] * cfg['TILESIZE']), 0, 32)
 pygame.display.set_caption('Battle City 2D')
 clock = pygame.time.Clock()
+
+tiles_bg = pygame.sprite.Group()
+tiles_fg = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 
 player = Player((cfg['WIDTH'] // 2, cfg['HEIGHT'] // 2))
+level = 0
+loadlevel(level)
 
 gameOn = True
 while gameOn:
@@ -97,7 +135,9 @@ while gameOn:
     all_sprites.update()
     # рендеринг
     screen.fill((0, 0, 0))
+    tiles_bg.draw(screen)
     all_sprites.draw(screen)
+    tiles_fg.draw(screen)
 
     pygame.display.flip()
 
