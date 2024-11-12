@@ -31,6 +31,19 @@ class Tank(pygame.sprite.Sprite):
                 self.rect.left -= 1
             else:
                 self.block_move = False
+            for tile in pygame.sprite.spritecollide(self, tiles_fg, False):
+                if tile.type == 'g':
+                    continue
+                if self.direction == 0:
+                    self.rect.top = tile.rect.bottom
+                elif self.direction == 1:
+                    self.rect.left = tile.rect.right
+                elif self.direction == 2:
+                    self.rect.bottom = tile.rect.top
+                else:
+                    self.rect.right = tile.rect.left
+                self.x = self.rect.left // cfg['TILESIZE']
+                self.y = self.rect.top // cfg['TILESIZE']
             self.last_update_c = now
 
         if now - self.last_update > self.frame_rate:    
@@ -50,6 +63,8 @@ class Player(Tank):
 
     def update(self):
         keystate = pygame.key.get_pressed()
+        if keystate[pygame.K_SPACE]:
+            bullet = Bullet(self, 5)
         if not self.block_move:
             if keystate[pygame.K_UP]:
                 self.direction = 0
@@ -68,6 +83,7 @@ class Player(Tank):
 class Tile(pygame.sprite.Sprite):
     def __init__(self, coords: tuple, type: str):
         pygame.sprite.Sprite.__init__(self)
+        self.type = type
         if type == 'x':
             self.image = pygame.surface.Surface((cfg['TILESIZE'], cfg['TILESIZE']))
             self.image.fill((200, 40, 40))
@@ -76,10 +92,36 @@ class Tile(pygame.sprite.Sprite):
             self.image = pygame.surface.Surface((cfg['TILESIZE'], cfg['TILESIZE']))
             self.image.fill((200, 200, 200))
             tiles_fg.add(self)
+        elif type == 'g':
+            self.image = pygame.surface.Surface((cfg['TILESIZE'], cfg['TILESIZE']))
+            self.image.fill((10, 200, 10))
+            tiles_fg.add(self)
         self.rect = self.image.get_rect()
         x, y = coords
         self.rect.topleft = (x * cfg['TILESIZE'], y * cfg['TILESIZE'])
 
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, owner, speed, power=1):
+        pygame.sprite.Sprite.__init__(self)
+        self.owner = owner
+        self.speed = speed
+        if owner.direction == 0:
+            self.speedx, self.speedy = 0, -speed
+        elif owner.direction == 1:
+            self.speedx, self.speedy = -speed, 0
+        elif owner.direction == 2:
+            self.speedx, self.speedy = 0, speed
+        else:
+            self.speedx, self.speedy = speed, 0
+        self.power = power
+        self.image = pygame.surface.Surface((6, 6))
+        self.rect = pygame.draw.circle(self.image, (255, 255, 255), (3, 3), 3)
+        self.rect.center = owner.rect.center
+        all_sprites.add(self)
+    
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
 
 
 def readcfg():
